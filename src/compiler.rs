@@ -9,9 +9,16 @@ pub fn compile<T>(path: T, shader_kind: ShaderKind) -> Result<Vec<u32>, CompileE
 where
     T: AsRef<Path>,
 {
+    let mut options = CompileOptions::new().ok_or(CompileError::CreateCompiler)?;
+    compile_with_options(path, shader_kind, options)
+}
+
+pub fn compile_with_options<T>(path: T, shader_kind: ShaderKind, mut options: CompileOptions) -> Result<Vec<u32>, CompileError>
+    where
+        T: AsRef<Path>,
+{
     // TODO Probably shouldn't create this every time.
     let mut compiler = shaderc::Compiler::new().ok_or(CompileError::CreateCompiler)?;
-    let mut options = CompileOptions::new().ok_or(CompileError::CreateCompiler)?;
     let mut f = File::open(&path).map_err(CompileError::Open)?;
     let mut src = String::new();
     f.read_to_string(&mut src).map_err(CompileError::Open)?;
