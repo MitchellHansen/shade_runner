@@ -29,6 +29,7 @@ pub fn create_entry(shaders: &CompiledShaders) -> Result<Entry, Error> {
     let vertex_layout = create_layouts(&shaders.vertex)?;
     let fragment_interfaces = create_interfaces(&shaders.fragment)?;
     let fragment_layout = create_layouts(&shaders.fragment)?;
+
     let frag_input = FragInput {
         inputs: fragment_interfaces.inputs,
     };
@@ -110,8 +111,9 @@ fn create_interfaces(data: &[u32]) -> Result<ShaderInterfaces, Error> {
 }
 
 fn create_layouts(data: &[u32]) -> Result<LayoutData, Error> {
-    sr::ShaderModule::load_u32_data(data)
-        .map(|m| {
+    let mut ret = sr::ShaderModule::load_u32_data(data);
+
+    ret.map(|m| {
             let descs: Result<_, Error> = m
                 .enumerate_descriptor_sets(None)
                 .map_err(|e| Error::LoadingData(e.to_string()))

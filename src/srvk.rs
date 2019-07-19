@@ -32,7 +32,8 @@ impl TryFrom<DescriptorDescInfo> for SpirvTy<DescriptorDescTy> {
                 SpirvTy::try_from(d.image)?.inner(),
             )),
             SR::SampledImage => Ok(VK::Image(SpirvTy::try_from(d.image)?.inner())),
-            SR::StorageImage => Err(ConvertError::Unimplemented(format!("{:?}", d.descriptor_type))),
+            //SR::StorageImage => Err(ConvertError::Unimplemented(format!("{:?}", d.descriptor_type))),
+            SR::StorageImage => Ok(VK::Image(SpirvTy::try_from(d.image)?.inner())),
             SR::UniformTexelBuffer => Ok(VK::TexelBuffer {
                 storage: false,
                 format: None,
@@ -66,7 +67,7 @@ impl TryFrom<sr::types::ReflectImageTraits> for SpirvTy<DescriptorImageDesc> {
             }
         };
         let t = DescriptorImageDesc {
-            sampled: d.sampled != 0,
+            sampled: d.sampled == 1,
             dimensions: SpirvTy::try_from(d.dim)?.inner(),
             // TODO figure out how to do format correctly
             //format: Some(SpirvTy::from(d.image_format).inner()),
