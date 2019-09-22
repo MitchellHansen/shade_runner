@@ -14,13 +14,14 @@ keywords = ["vulkan", "vulkano", "shaders", "hotloading"]
 version = "4"
 
 [dependencies.shaderc]
-version = "0.5"
+version = "0.6.1"
 
 [dependencies.spirv-reflect]
 version = "0.2"
 
 [dependencies.vulkano]
-version = "0.13.0"
+#version = "0.14.0"
+path = "../vulkano/vulkano"
 
 [dev-dependencies.color-backtrace]
 version = "0.1"

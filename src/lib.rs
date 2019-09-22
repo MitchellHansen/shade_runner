@@ -16,27 +16,61 @@ use vulkano as vk;
 use std::path::Path;
 use shaderc::ShaderKind;
 
+#[derive(Clone)]
 pub struct CompiledShaders {
     pub vertex: Vec<u32>,
     pub fragment: Vec<u32>,
     pub compute: Vec<u32>,
 }
 
-/// Loads and compiles the vertex and fragment GLSL shaders from files
-pub fn load<T>(vertex: T, fragment: T) -> Result<CompiledShaders, Error>
-where
-    T: AsRef<Path>,
+#[derive(Clone)]
+pub struct CompiledShader {
+    pub spriv: Vec<u32>,
+}
+
+/// Loads and compiles the vertex shader
+pub fn load_vertex<T>(vertex: T) -> Result<CompiledShader, Error>
+    where
+        T: AsRef<Path>,
 {
-    let options = CompileOptions::new().ok_or(CompileError::CreateCompiler).unwrap();
-
     let vertex = compiler::compile(vertex, ShaderKind::Vertex).map_err(Error::Compile)?;
-    let fragment = compiler::compile(fragment, ShaderKind::Fragment).map_err(Error::Compile)?;
+    Ok(CompiledShader{ spriv: vertex })
+}
 
-    Ok(CompiledShaders{
-        vertex,
-        fragment,
-        compute: Vec::new(),
-    })
+/// Loads and compiles the fragment shader
+pub fn load_fragment<T>(fragment: T) -> Result<CompiledShader, Error>
+    where
+        T: AsRef<Path>,
+{
+    let fragment = compiler::compile(vertex, ShaderKind::Fragment).map_err(Error::Compile)?;
+    Ok(CompiledShader{ spriv: fragment })
+}
+
+/// Loads and compiles the geometry shader
+pub fn load_geometry<T>(geometry: T) -> Result<CompiledShader, Error>
+    where
+        T: AsRef<Path>,
+{
+    let geometry = compiler::compile(vertex, ShaderKind::Geometry).map_err(Error::Compile)?;
+    Ok(CompiledShader{ spriv: geometry })
+}
+
+/// Loads and compiles the tessellation shader
+pub fn load_tessellation_control<T>(geometry: T) -> Result<CompiledShader, Error>
+    where
+        T: AsRef<Path>,
+{
+    let tess = compiler::compile(vertex, ShaderKind::TessControl).map_err(Error::Compile)?;
+    Ok(CompiledShader{ spriv: tess })
+}
+
+/// Loads and compiles the tessellation shader
+pub fn load_tessellation_evaluation<T>(geometry: T) -> Result<CompiledShader, Error>
+    where
+        T: AsRef<Path>,
+{
+    let tess = compiler::compile(vertex, ShaderKind::TessEvaluation).map_err(Error::Compile)?;
+    Ok(CompiledShader{ spriv: tess })
 }
 
 // TODO this should be incorpoarted into load but that would be
