@@ -28,13 +28,21 @@ pub struct CompiledShader {
     pub spriv: Vec<u32>,
 }
 
+pub fn load<T>(input: T, shader_kind: ShaderKind) -> Result<CompiledShader, Error>
+    where
+        T: AsRef<Path>,
+{
+    Ok(CompiledShader { spriv: compiler::compile(input, shader_kind).map_err(Error::Compile)? })
+}
+
+
 /// Loads and compiles the vertex shader
 pub fn load_vertex<T>(vertex: T) -> Result<CompiledShader, Error>
     where
         T: AsRef<Path>,
 {
     let vertex = compiler::compile(vertex, ShaderKind::Vertex).map_err(Error::Compile)?;
-    Ok(CompiledShader{ spriv: vertex })
+    Ok(CompiledShader { spriv: vertex })
 }
 
 /// Loads and compiles the fragment shader
@@ -42,8 +50,8 @@ pub fn load_fragment<T>(fragment: T) -> Result<CompiledShader, Error>
     where
         T: AsRef<Path>,
 {
-    let fragment = compiler::compile(vertex, ShaderKind::Fragment).map_err(Error::Compile)?;
-    Ok(CompiledShader{ spriv: fragment })
+    let fragment = compiler::compile(fragment, ShaderKind::Fragment).map_err(Error::Compile)?;
+    Ok(CompiledShader { spriv: fragment })
 }
 
 /// Loads and compiles the geometry shader
@@ -51,55 +59,51 @@ pub fn load_geometry<T>(geometry: T) -> Result<CompiledShader, Error>
     where
         T: AsRef<Path>,
 {
-    let geometry = compiler::compile(vertex, ShaderKind::Geometry).map_err(Error::Compile)?;
-    Ok(CompiledShader{ spriv: geometry })
+    let geometry = compiler::compile(geometry, ShaderKind::Geometry).map_err(Error::Compile)?;
+    Ok(CompiledShader { spriv: geometry })
 }
 
 /// Loads and compiles the tessellation shader
-pub fn load_tessellation_control<T>(geometry: T) -> Result<CompiledShader, Error>
+pub fn load_tessellation_control<T>(tessellation_control: T) -> Result<CompiledShader, Error>
     where
         T: AsRef<Path>,
 {
-    let tess = compiler::compile(vertex, ShaderKind::TessControl).map_err(Error::Compile)?;
-    Ok(CompiledShader{ spriv: tess })
+    let tess = compiler::compile(tessellation_control, ShaderKind::TessControl).map_err(Error::Compile)?;
+    Ok(CompiledShader { spriv: tess })
 }
 
 /// Loads and compiles the tessellation shader
-pub fn load_tessellation_evaluation<T>(geometry: T) -> Result<CompiledShader, Error>
+pub fn load_tessellation_evaluation<T>(tessellation_evaluation: T) -> Result<CompiledShader, Error>
     where
         T: AsRef<Path>,
 {
-    let tess = compiler::compile(vertex, ShaderKind::TessEvaluation).map_err(Error::Compile)?;
-    Ok(CompiledShader{ spriv: tess })
+    let tess = compiler::compile(tessellation_evaluation, ShaderKind::TessEvaluation).map_err(Error::Compile)?;
+    Ok(CompiledShader { spriv: tess })
 }
 
-// TODO this should be incorpoarted into load but that would be
-// a breaking change. Do this in next major version
-pub fn load_compute<T>(compute: T) -> Result<CompiledShaders, Error>
-where
-    T: AsRef<Path>,
+pub fn load_compute<T>(compute: T) -> Result<CompiledShader, Error>
+    where
+        T: AsRef<Path>,
 {
     let options = CompileOptions::new().ok_or(CompileError::CreateCompiler).unwrap();
     load_compute_with_options(compute, options)
 }
 
-pub fn load_compute_with_options<T>(compute: T, options: CompileOptions) -> Result<CompiledShaders, Error>
+pub fn load_compute_with_options<T>(compute: T, options: CompileOptions) -> Result<CompiledShader, Error>
     where
         T: AsRef<Path>,
 {
     let compute = compiler::compile_with_options(compute, ShaderKind::Compute, options).map_err(Error::Compile)?;
-    Ok(CompiledShaders{
-        vertex: Vec::new(),
-        fragment: Vec::new(),
-        compute,
+    Ok(CompiledShader {
+        spriv: compute,
     })
 }
 
-pub fn parse_compute(code: &CompiledShaders) -> Result<Entry, Error> {
-    reflection::create_compute_entry(code)
+pub fn parse_compute(code: &CompiledShader) -> Result<Entry, Error> {
+    reflection::create_compute_entry(&code.spriv)
 }
 
 /// Parses the shaders and gives an entry point
-pub fn parse(code: &CompiledShaders) -> Result<Entry, Error> {
-    reflection::create_entry(code)
+pub fn parse(code: &CompiledShader) -> Result<Entry, Error> {
+    reflection::create_entry(&code.spriv)
 }

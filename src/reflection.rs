@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::layouts::*;
-use crate::sr;
+use crate::{sr, CompiledShader};
 use crate::srvk::{DescriptorDescInfo, SpirvTy};
 use crate::vk::descriptor::descriptor::*;
 use crate::vk::descriptor::pipeline_layout::PipelineLayoutDescPcRange;
@@ -24,46 +24,40 @@ pub struct LayoutData {
     pub pc_ranges: Vec<PipelineLayoutDescPcRange>,
 }
 
-pub fn create_entry(shaders: &CompiledShaders) -> Result<Entry, Error> {
-    let vertex_interfaces = create_interfaces(&shaders.vertex)?;
-    let vertex_layout = create_layouts(&shaders.vertex)?;
-    let fragment_interfaces = create_interfaces(&shaders.fragment)?;
-    let fragment_layout = create_layouts(&shaders.fragment)?;
+pub fn create_entry(spirv: &Vec<u32>) -> Result<Entry, Error> {
 
-    let frag_input = FragInput {
-        inputs: fragment_interfaces.inputs,
-    };
-    let frag_output = FragOutput {
-        outputs: fragment_interfaces.outputs,
-    };
-    let frag_layout = FragLayout {
-        layout_data: fragment_layout,
-    };
-    let vert_input = VertInput {
+    let vertex_interfaces = create_interfaces(spirv)?;
+    let vertex_layout = create_layouts(spirv)?;
+
+    let input = Some(Input {
         inputs: vertex_interfaces.inputs,
-    };
-    let vert_output = VertOutput {
+    });
+    let output = Some(Output {
         outputs: vertex_interfaces.outputs,
-    };
-    let vert_layout = VertLayout {
+    });
+    let layout = Layout {
         layout_data: vertex_layout,
     };
+
     Ok(Entry {
-        frag_input,
-        frag_output,
-        vert_input,
-        vert_output,
-        frag_layout,
-        vert_layout,
-        compute_layout: Default::default(),
+        input,
+        output,
+        layout,
     })
 }
 
-pub fn create_compute_entry(shaders: &CompiledShaders) -> Result<Entry, Error> {
-    create_layouts(&shaders.compute).map(|layout_data| {
-        let mut entry = Entry::default();
-        entry.compute_layout = ComputeLayout{ layout_data };
-        entry
+pub fn create_compute_entry(spirv: &Vec<u32>) -> Result<Entry, Error> {
+
+    let compute_layout = create_layouts(spirv)?;
+
+    let layout = Layout {
+        layout_data: compute_layout,
+    };
+
+    Ok(Entry {
+        input: None,
+        output: None,
+        layout,
     })
 }
 

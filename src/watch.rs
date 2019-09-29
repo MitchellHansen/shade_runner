@@ -90,14 +90,14 @@ impl GraphicsLoader {
     }
 
     fn reload(&self) {
-        match crate::load(&self.vertex, &self.fragment) {
-            Ok(shaders) => {
-                let entry = crate::parse(&shaders);
-                let msg = entry.map(|entry| Message { shaders, entry });
-                self.tx.send(msg).ok()
-            }
-            Err(e) => self.tx.send(Err(e)).ok(),
-        };
+//        match crate::load(&self.vertex, &self.fragment) {
+//            Ok(shaders) => {
+//                let entry = crate::parse(&shaders);
+//                let msg = entry.map(|entry| Message { shaders, entry });
+//                self.tx.send(msg).ok()
+//            }
+//            Err(e) => self.tx.send(Err(e)).ok(),
+//        };
     }
 }
 
@@ -113,14 +113,14 @@ impl ComputeLoader {
     }
 
     fn reload(&self) {
-        match crate::load_compute(&self.compute) {
-            Ok(shaders) => {
-                let entry = crate::parse_compute(&shaders);
-                let msg = entry.map(|entry| Message { shaders, entry });
-                self.tx.send(msg).ok()
-            }
-            Err(e) => self.tx.send(Err(e)).ok(),
-        };
+//        match crate::load_compute(&self.compute) {
+//            Ok(shaders) => {
+//                let entry = crate::parse_compute(&shaders);
+//                let msg = entry.map(|entry| Message { shaders, entry });
+//                self.tx.send(msg).ok()
+//            }
+//            Err(e) => self.tx.send(Err(e)).ok(),
+//        };
     }
 }
 
